@@ -35,6 +35,6 @@ def playlists_submit():
 def playlists_new():
     #create a new playlist
     return render_template('playlists_new.html')
-
+ 
 if __name__ == '__main__':
     app.run(debug=True)
