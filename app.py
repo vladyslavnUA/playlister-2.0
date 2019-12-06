@@ -3,9 +3,11 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 import os
 
-client = MongoClient()
-db = client.Playlister
+host = os.environ.get('MONGODB_URI', 'mongodb://localhost:27017/Playlister')
+client = MongoClient(host=host)
+db = client.get_default_database()
 playlists = db.playlists
+comments = db.comments
 
 app = Flask(__name__)
 
@@ -27,13 +29,17 @@ def playlists_index():
     #index playlists
     return render_template('playlists_index.html', playlists=playlists.find())
 
-@app.route('/playlists', methods=['POST'])
+@app.route('/playlists/new')
+def playlists_new():
+    #create a new playlist
+    return render_template('playlists_new.html', playlist={}, title='[new playlist]')
+
+@app.route('/playlists', methods=['post'])
 def playlists_submit():
     #grab video IDs and make a list out of them
     video_ids = request.form.get('video_ids').split()
     #call helper function
     videos = video_url_creator(video_ids)
-
     playlist = {
         'title': request.form.get('title'),
         'description': request.form.get('description'),
@@ -41,18 +47,12 @@ def playlists_submit():
         'video_ids': video_ids
         'created_at': datetime.now()
     }
-
-    playlists.insert_one(playlist)
-    return redirect(url_for('playlists_index'))
+    playlist_id = playlists.insert_one(playlist).inserted_id
+    return redirect(url_for('playlists_index', playlist_id=playlist_id))
     
-    #submit a new playlist
-    print(request.form.to_dict())
-    return redirect(url_for('playlists_index'))
-
-@app.route('/playlists/new')
-def playlists_new():
-    #create a new playlist
-    return render_template('playlists_new.html')
+    # #submit a new playlist
+    # print(request.form.to_dict())
+    # return redirect(url_for('playlists_index'))
 
 @app.route('/playlists/<playlist_id>')
 def playlists_show(playlist_id):
@@ -76,6 +76,11 @@ def playlists_update(playlist_id):
         {'_id': ObjectId(playlist_id)},
         {'$set': updated_playlist})
     return redirect(url_for('playlists_show', playlist_id=playlist_id))
+
+@app.route('/playlists/<playlist_id>/edit')
+def playlists_edit(playlist_id):
+    playlist = playlists.find_one({'_id': ObjectId(playlist_id)})
+    return render_template('playlists_edit.html', playlist=playlist, title='edit playlist')
 
 @app.route('/playlists/<playlist_id>/delete', methods=['post'])
 def playlists_delete(playlist_id):
