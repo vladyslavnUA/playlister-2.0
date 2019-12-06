@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 from pymongo import MongoClient
+from bson.objectid import ObjectId
 
 client = MongoClient()
 db = client.Playlister
@@ -18,13 +19,7 @@ def video_url_creator(id_lst):
 @app.route('/')
 def index():
     #homepage
-    return render_template('home.html', msg='flask is cool')
-
-# mock array of projects
-# playlists = [
-#     { 'title': 'cat videos', 'description': 'cats acting weird'},
-#     { 'title': '80\'s music', 'description': 'don\'t stop believing!'}
-# ]
+    return render_template('home.html')
 
 @app.route('/playlists')
 def playlists_index():
@@ -37,12 +32,14 @@ def playlists_submit():
     video_ids = request.form.get('video_ids').split()
     #call helper function
     videos = video_url_creator(video_ids)
+
     playlist = {
         'title': request.form.get('title'),
         'description': request.form.get('description'),
         'videos': videos,
         'video_ids': video_ids
     }
+
     playlists.insert_one(playlist)
     return redirect(url_for('playlists_index'))
     
