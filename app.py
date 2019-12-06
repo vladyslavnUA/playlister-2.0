@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-from 
+import os
 
 client = MongoClient()
 db = client.Playlister
@@ -94,7 +94,9 @@ def comments_new():
     return redirect(url_for('playlists_show', playlist_id=request.form.get('playlist_id')))
 
 @app.route('/playlists/comments/<comment_id>', methods=['post'])
-
+    comment = comments.find_one({'_id': ObjectId(comment_id)})
+    comments.delete_one({'_id': ObjectId(comment_id)})
+    return redirect(url_for('playlists_show', playlist_id=comment.get('playlist_id')))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=os.environ.get('PORT', 5000))
