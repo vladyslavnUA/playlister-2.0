@@ -1,0 +1,21 @@
+<fieldset>
+    <legend>Edit Playlist</legend>
+    <!-- title -->
+    <div class='form-group'>
+        <label for='playlist-title'>Title</label><br>
+        <input class='form-control' id='playlist-title' type='text' name='title' vlaue='{{ playlist.title }}' />
+    </div>
+
+    <!-- description -->
+    <div class='form-group'>
+        <label for='description'>Description</label><br>
+        <input class='form-control' id='description' type='text' name='description' vlaue='{{ playlist.description }}' />
+    </div>
+
+    <!-- video ids -->
+    <div class='form-group'>
+        <label for='playlist-video-ids'>Videos</label><br>
+        <p class='text-muted'>Add the ID of the videos you want to include in your playlist. Separate with a newline.</p>
+        <textarea class='form-control' id='playlist-video-ids' name='video_ids' rows='10'>{{ "\n".join(playlist.video_ids) }}</textarea>
+    </div>
+</fieldset>
