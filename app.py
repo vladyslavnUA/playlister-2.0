@@ -45,7 +45,6 @@ def playlists_submit():
         'description': request.form.get('description'),
         'videos': videos,
         'video_ids': video_ids
-        'created_at': datetime.now()
     }
     playlist_id = playlists.insert_one(playlist).inserted_id
     return redirect(url_for('playlists_index', playlist_id=playlist_id))
@@ -87,7 +86,7 @@ def playlists_delete(playlist_id):
     playlists.delete_one({'_id': ObjectId(playlist_id)})
     return redirect(url_for('playlists_index'))
 
-@app.route('/playlists/comments/comments', methods=['post'])
+@app.route('/playlists/comments', methods=['post'])
 def comments_new():
     comment = {
         'title': request.form.get('title'),
@@ -99,6 +98,7 @@ def comments_new():
     return redirect(url_for('playlists_show', playlist_id=request.form.get('playlist_id')))
 
 @app.route('/playlists/comments/<comment_id>', methods=['post'])
+def comments_delete(comment_id):
     comment = comments.find_one({'_id': ObjectId(comment_id)})
     comments.delete_one({'_id': ObjectId(comment_id)})
     return redirect(url_for('playlists_show', playlist_id=comment.get('playlist_id')))
