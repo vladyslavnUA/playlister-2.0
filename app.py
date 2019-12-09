@@ -55,7 +55,7 @@ def playlists_show(playlist_id):
 
 @app.route('/playlists/<playlist_id>', methods=['post'])
 def playlists_update(playlist_id):
-    videos_ids = request.form.get('videos_ids').split()
+    videos_ids = request.form.get('videos_ids').split('/')
     videos = video_url_creator(videos_ids)
 
     updated_playlist = {
