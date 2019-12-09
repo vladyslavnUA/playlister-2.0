@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<a href="/playlists"> Back to Home</a>
+
+
+<div class="container">
+        <div class="row">
+            <div class="col-lg">
+                <div class="row">
+                    <div class="card">
+                        <div class="card-title">
+                            <h1 class="card-title">{{ playlist.title }}
+                            <p class="card-body">{{ playlist.description }}</p>
+                        </div>
+                    </div>
+                     
+                    {% for video in playlist.videos %}
+                    <div class="col-lg-4 col-md-6 mb-4"></div>
+                        <iframe class="float-left" width="560" height="360" src="{{ video }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                    {% endfor %}
+                    <p><a href="/playlists/{{ playlist._id }}/edit">Edit</a></p>
+                    <p><form method='post' action="/playlists/{{ playlist._id }}"></p>
+                        <button class="btn btn-primary" type="submit">Delete</button>
+                    </form></p>
+                    {% include 'partials/comment_form.html' %}
+                </div>
+
+                {% for comment in comments %}
+                {% include 'partials/comment.html' %}
+                {% endfor %}
+            </div>
+        </div>    
+    </div>
+
+
+
+{% endblock %}
+
+
