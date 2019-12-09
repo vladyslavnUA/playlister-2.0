@@ -4,12 +4,13 @@ from bson.objectid import ObjectId
 import os
 
 host = os.environ.get('MONGODB_URI', 'mongodb://localhost:27017/Playlister')
-client = MongoClient(host=host)
+client = MongoClient(host=f'{host}?retryWrites=false') #mongo client
+app = Flask(__name__)
+
 db = client.get_default_database()
 playlists = db.playlists
 comments = db.comments
 
-app = Flask(__name__)
 
 def video_url_creator(id_lst):
     videos = []
@@ -20,11 +21,6 @@ def video_url_creator(id_lst):
     return videos
 
 @app.route('/')
-def index():
-    #homepage
-    return render_template('home.html')
-
-@app.route('/playlists')
 def playlists_index():
     #index playlists
     return render_template('playlists_index.html', playlists=playlists.find())
@@ -32,7 +28,7 @@ def playlists_index():
 @app.route('/playlists/new')
 def playlists_new():
     #create a new playlist
-    return render_template('playlists_new.html', playlist={}, title='[new playlist]')
+    return render_template('playlists_new.html')
 
 @app.route('/playlists', methods=['post'])
 def playlists_submit():
@@ -40,6 +36,7 @@ def playlists_submit():
     video_ids = request.form.get('video_ids').split()
     #call helper function
     videos = video_url_creator(video_ids)
+    
     playlist = {
         'title': request.form.get('title'),
         'description': request.form.get('description'),
@@ -47,24 +44,21 @@ def playlists_submit():
         'video_ids': video_ids
     }
     playlist_id = playlists.insert_one(playlist).inserted_id
-    return redirect(url_for('playlists_index', playlist_id=playlist_id))
-    
-    # #submit a new playlist
-    # print(request.form.to_dict())
-    # return redirect(url_for('playlists_index'))
+    return redirect(url_for('playlists_show', playlist_id=playlist_id))
 
 @app.route('/playlists/<playlist_id>')
 def playlists_show(playlist_id):
+    #one playlist
     playlist = playlists.find_one({'_id': ObjectId(playlist_id)})
     playlist_comments = comments.find({'playlist_id': ObjectId(playlist_id)})
-    return render_template('playlists_index.html', playlist=playlist, comments=playlist_comments)
+    return render_template('playlists_show.html', playlist=playlist, comments=playlist_comments)
 
 @app.route('/playlists/<playlist_id>', methods=['post'])
 def playlists_update(playlist_id):
     videos_ids = request.form.get('videos_ids').split()
     videos = video_url_creator(videos_ids)
 
-    update_playlist = {
+    updated_playlist = {
         'title': request.form.get('title'),
         'descrption': request.form.get('description'),
         'videos': videos,
@@ -79,7 +73,7 @@ def playlists_update(playlist_id):
 @app.route('/playlists/<playlist_id>/edit')
 def playlists_edit(playlist_id):
     playlist = playlists.find_one({'_id': ObjectId(playlist_id)})
-    return render_template('playlists_edit.html', playlist=playlist, title='edit playlist')
+    return render_template('playlists_edit.html', playlist=playlist, title='Edit Playlist')
 
 @app.route('/playlists/<playlist_id>/delete', methods=['post'])
 def playlists_delete(playlist_id):
