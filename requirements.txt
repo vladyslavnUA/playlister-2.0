@@ -27,7 +27,7 @@ idna==2.6
 itsdangerous==1.1.0
 Jinja2==2.10.3
 macholib==1.11
-Mako==1.1.0
+Mako==1.2.2
 MarkupSafe==1.1.1
 Naked==0.1.31
 nltk==3.4.5
